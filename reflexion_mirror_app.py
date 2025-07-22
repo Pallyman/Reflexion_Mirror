@@ -292,13 +292,72 @@ def get_user_reflections(user_id):
     conn.close()
     return reflections
 
+def generate_narrative(collapse: str, build: str, now: str, archetype: str) -> str:
+    """Construct a transformation narrative from the user inputs.
+
+    Given the three phases of the transformation journey—collapse, build, and now—
+    this helper function weaves them into a cohesive narrative.  It uses
+    section markers to delineate the phases and draws on the selected archetype
+    (if provided) to offer additional context and symbolism.  The narrative is
+    returned as a plain string with line breaks separating the sections.
+
+    Args:
+        collapse: Description of what was lost or dissolved.
+        build: Description of the rebuilding or integration phase.
+        now: Description of the current state after transformation.
+        archetype: Optional archetype key from the ARCHETYPES dictionary.
+
+    Returns:
+        A multi‑line string summarizing the user's transformation journey.
+    """
+    sections = []
+
+    # Collapse section
+    sections.append("【 COLLAPSE 】\n" +
+                    "In the depths of dissolution, you faced the void:\n" +
+                    collapse.strip())
+
+    # Build/compression section
+    sections.append("\n【 COMPRESSION 】\n" +
+                    "From the fragments, you forged something new:\n" +
+                    build.strip())
+
+    # Convergence section
+    sections.append("\n【 CONVERGENCE 】\n" +
+                    "Now, you stand transformed:\n" +
+                    now.strip())
+
+    # Archetype section, if provided
+    if archetype:
+        arch_data = ARCHETYPES.get(archetype.lower())
+        if arch_data:
+            sections.append(
+                f"\n【 ARCHETYPE 】\nYou embody the {archetype.title()}: {arch_data['description']}\n\n"
+                f"{arch_data['quote']}"
+            )
+        else:
+            sections.append(
+                "\n【 ARCHETYPE 】\nYour archetype is still crystallizing in the cosmic forge"
+            )
+
+    return "\n\n".join(sections)
+
 @app.route('/')
 def index():
-    # Use the updated template filename as provided by the user.  The original
-    # template was `form.html`; we now reference `reflexion_form_html.html`.
-    return render_template('reflexion_form_html.html',
-                         archetypes=ARCHETYPES,
-                         field_guidance=FIELD_GUIDANCE)
+    """Render the main input form using the correct template name.
+
+    The application uses custom HTML templates with the `_html.html` suffix.  When
+    the new templates were uploaded, the default `render_template` calls still
+    referenced the old names (e.g. `form.html`).  To ensure Flask loads the
+    correct files from the `templates` directory, update this route to use
+    `reflexion_form_html.html` instead.  Additional context (e.g. archetypes
+    and guidance text) is passed to the template for rendering.
+    """
+    return render_template(
+        'reflexion_form_html.html',
+        archetypes=ARCHETYPES,
+        field_guidance=FIELD_GUIDANCE
+    )
 
 @app.route('/mirror', methods=['POST'])
 def mirror():
@@ -392,28 +451,34 @@ def mirror():
         except Exception as e:
             print(f"Email error: {e}")
     
-    return render_template('reflexion_mirror_html.html',
-                         reflection=narrative,
-                         reflection_id=reflection_id,
-                         collapse=collapse,
-                         build=build,
-                         now=now,
-                         archetype=archetype,
-                         archetype_data=ARCHETYPES.get(archetype, None),
-                         reflexion_dna=reflexion_dna,
-                         share_code=share_code,
-                         is_public=is_public)
+    return render_template(
+        'reflexion_mirror_html.html',
+        reflection=narrative,
+        reflection_id=reflection_id,
+        collapse=collapse,
+        build=build,
+        now=now,
+        archetype=archetype,
+        archetype_data=ARCHETYPES.get(archetype, None),
+        reflexion_dna=reflexion_dna,
+        share_code=share_code,
+        is_public=is_public
+    )
 
 @app.route('/archive')
 def archive():
-    """Display user's reflection archive"""
+    """Display the user's reflection archive using the updated template name."""
     user_id = get_user_id()
     reflections = get_user_reflections(user_id)
-    return render_template('reflexion_archive_html.html', reflections=reflections, archetypes=ARCHETYPES)
+    return render_template(
+        'reflexion_archive_html.html',
+        reflections=reflections,
+        archetypes=ARCHETYPES
+    )
 
 @app.route('/explore')
 def explore():
-    """Public exploration of shared reflections"""
+    """Public exploration of shared reflections using the updated template name."""
     conn = sqlite3.connect(DATABASE_PATH)
     c = conn.cursor()
     
@@ -435,7 +500,11 @@ def explore():
         })
     
     conn.close()
-    return render_template('reflexion_explore_html.html', reflections=public_reflections, archetypes=ARCHETYPES)
+    return render_template(
+        'reflexion_explore_html.html',
+        reflections=public_reflections,
+        archetypes=ARCHETYPES
+    )
 
 @app.route('/reflection/<reflection_id>')
 def view_reflection(reflection_id):
@@ -457,7 +526,7 @@ def view_reflection(reflection_id):
             'narrative': row[6],
             'created_at': row[7]
         }
-        return render_template('public_reflection.html',
+        return render_template('public_reflection.html', 
                              reflection=reflection,
                              archetype_data=ARCHETYPES.get(row[5], None))
     
@@ -514,11 +583,11 @@ def export_reflection(format, reflection_id):
         )
     
     elif format == 'md':
-        # Markdown export
-        # Preprocess the narrative so that backslashes do not appear inside
-        # the f‑string expression.  A single backslash inside an f‑string
-        # expression can cause a syntax error (PEP 498).  Compute the
-        # replacement ahead of time and reference it in the f‑string body.
+        # Markdown export.
+        # Compute the processed narrative outside the f-string to avoid using
+        # backslashes inside the expression.  f-strings forbid backslashes in
+        # expressions, so any replacement that inserts a newline must be done
+        # beforehand.
         processed_narrative = narrative.replace('【', '## 【').replace('】', '】\n')
         md_content = f"""# Reflexion Mirror - Personal Transformation Narrative
 
@@ -527,14 +596,16 @@ ID: {reflection_id}
 
 ---
 
-{processed_narrative}
+    {processed_narrative}
 
 ---
 
-*Generated by Reflexion Mirror - A tool for symbolic identity reflection*"""
+*Generated by Reflexion Mirror - A tool for symbolic identity reflection*
+"""
         buffer = io.BytesIO()
         buffer.write(md_content.encode('utf-8'))
         buffer.seek(0)
+        
         return send_file(
             buffer,
             as_attachment=True,
@@ -554,6 +625,7 @@ ID: {reflection_id}
 @app.route('/chat')
 def chat():
     """Claude-powered chat interface"""
+    # Render the chat interface using the updated template filename
     return render_template('reflexion_chat_html.html')
 
 @app.route('/api/chat', methods=['POST'])
@@ -680,7 +752,12 @@ def collapse_archive():
             total_words = sum(entry.get('metadata', {}).get('word_count', {}).get(field, 0) for entry in entries)
             stats['avg_word_counts'][field] = round(total_words / len(entries), 1)
     
-    return render_template('collapse_dashboard_html.html', entries=entries, stats=stats)
+    # Render the collapse archive dashboard using the updated template filename
+    return render_template(
+        'collapse_dashboard_html.html',
+        entries=entries,
+        stats=stats
+    )
 
 @app.route('/api/collapse-archive/<entry_id>')
 def get_collapse_entry(entry_id):
@@ -811,7 +888,12 @@ def admin_dashboard():
     
     conn.close()
     
-    return render_template('admin_dashboard_html.html', stats=stats, archetypes=ARCHETYPES)
+    # Render the admin dashboard using the updated template filename
+    return render_template(
+        'admin_dashboard_html.html',
+        stats=stats,
+        archetypes=ARCHETYPES
+    )
 
 @app.route('/api/admin/export-all')
 @require_admin
@@ -1070,17 +1152,23 @@ def generate_pdf_from_data(data):
     for title, intro, content in sections_data:
         elements.append(Paragraph(title, heading_style))
         elements.append(Paragraph(intro, body_style))
-        # Quote the content in italics for emphasis
+        # Quote the user content inside double quotes for emphasis
         elements.append(Paragraph(f'"{content}"', quote_style))
-        elements.append(Spacer(1, 0.3 * inch))
+        elements.append(Spacer(1, 0.3*inch))
     
     # Archetype section
     elements.append(Paragraph("【 ARCHETYPE 】", heading_style))
     if archetype and archetype in ARCHETYPES:
         arch_data = ARCHETYPES[archetype]
-        elements.append(Paragraph(f"You embody the {archetype.title()}: {arch_data['description']}", body_style))
-        # Surround the quote in double quotes using a properly quoted f‑string
-        elements.append(Paragraph(f"\"{arch_data['quote']}\"", quote_style))
+        elements.append(Paragraph(
+            f"You embody the {archetype.title()}: {arch_data['description']}",
+            body_style
+        ))
+        # Quote the archetype's quote inside double quotes for clarity
+        elements.append(Paragraph(
+            f'"{arch_data["quote"]}"',
+            quote_style
+        ))
     else:
         elements.append(Paragraph("Your archetype is still crystallizing in the cosmic forge", body_style))
     
