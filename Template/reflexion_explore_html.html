@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Reflections - Reflexion Mirror</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: rgba(255, 255, 255, 0.03);
+            --text-primary: #e0e0e0;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent: #667eea;
+            --accent-secondary: #764ba2;
+            --border: rgba(255, 255, 255, 0.1);
+            --gradient-1: rgba(120, 40, 200, 0.1);
+            --gradient-2: rgba(40, 100, 200, 0.1);
+        }
+        
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: rgba(0, 0, 0, 0.03);
+            --text-primary: #1a1a1a;
+            --text-secondary: #4b5563;
+            --text-muted: #9ca3af;
+            --accent: #5b51d8;
+            --accent-secondary: #6d3a9c;
+            --border: rgba(0, 0, 0, 0.1);
+            --gradient-1: rgba(120, 40, 200, 0.05);
+            --gradient-2: rgba(40, 100, 200, 0.05);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 20% 50%, var(--gradient-1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, var(--gradient-2) 0%, transparent 50%);
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            border-color: var(--accent);
+        }
+        
+        .theme-toggle svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--text-primary);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            margin-top: 40px;
+        }
+        
+        h1 {
+            font-family: 'Crimson Text', serif;
+            font-size: 3.5em;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+        
+        .subtitle {
+            font-size: 1.1em;
+            color: var(--text-secondary);
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        
+        .nav-button {
+            padding: 10px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+        
+        .nav-button:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .intro-text {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 50px;
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+        
+        .reflections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .reflection-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .reflection-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .reflection-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+            border-color: var(--accent);
+        }
+        
+        .reflection-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .reflection-archetype {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            padding: 8px 16px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        
+        .archetype-symbol {
+            font-size: 1.3em;
+        }
+        
+        .archetype-name {
+            color: var(--accent);
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+        
+        .reflection-preview {
+            margin-bottom: 15px;
+        }
+        
+        .preview-label {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        
+        .preview-text {
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            font-style: italic;
+        }
+        
+        .reflection-date {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            text-align: right;
+            margin-top: 15px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+        
+        .create-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
+            color: white;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .create-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            .reflections-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <svg viewBox="0 0 24 24" id="theme-icon">
+            <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.591a.75.75 0 101.06 1.06l1.591-1.591zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.591-1.591a.75.75 0 10-1.06 1.06l1.591 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.591a.75.75 0 001.06 1.06l1.591-1.591zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.591-1.591a.75.75 0 00-1.06 1.06l1.591 1.591z"/>
+        </svg>
+    </button>
+    
+    <div class="container">
+        <header>
+            <h1>Explore Reflections</h1>
+            <p class="subtitle">Witness Collective Transformation</p>
+        </header>
+        
+        <div class="nav-buttons">
+            <a href="/" class="nav-button">✨ Create Your Own</a>
+            <a href="/archive" class="nav-button">📚 My Archive</a>
+            <a href="/chat" class="nav-button">💬 Chat</a>
+        </div>
+        
+        <p class="intro-text">
+            Each reflection below represents a journey through collapse, compression, and convergence. 
+            These are the stories of transformation shared by those who chose to make their journey public.
+        </p>
+        
+        {% if reflections %}
+        <div class="reflections-grid">
+            {% for reflection in reflections %}
+            <div class="reflection-card" onclick="viewReflection('{{ reflection.id }}')">
+                {% if reflection.archetype and reflection.archetype in archetypes %}
+                <div class="reflection-archetype">
+                    <span class="archetype-symbol">{{ archetypes[reflection.archetype].symbol }}</span>
+                    <span class="archetype-name">{{ reflection.archetype }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="reflection-preview">
+                    <div class="preview-label">Collapse</div>
+                    <div class="preview-text">{{ reflection.collapse }}</div>
+                </div>
+                
+                <div class="reflection-preview">
+                    <div class="preview-label">Convergence</div>
+                    <div class="preview-text">{{ reflection.now }}</div>
+                </div>
+                
+                <div class="reflection-date">
+                    {{ reflection.created_at.strftime('%B %d, %Y') if reflection.created_at else 'Unknown date' }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <h2>No public reflections yet</h2>
+            <p>Be the first to share your transformation journey with the world.</p>
+            <a href="/" class="create-button">Create Your Reflection</a>
+        </div>
+        {% endif %}
+    </div>
+    
+    <script>
+        // Theme management
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+        
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('theme-icon');
+            if (theme === 'light') {
+                icon.innerHTML = '<path d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/>';
+            } else {
+                icon.innerHTML = '<path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.591a.75.75 0 101.06 1.06l1.591-1.591zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.591-1.591a.75.75 0 10-1.06 1.06l1.591 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.591a.75.75 0 001.06 1.06l1.591-1.591zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.591-1.591a.75.75 0 00-1.06 1.06l1.591 1.591z"/>';
+            }
+        }
+        
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+        
+        function viewReflection(id) {
+            window.location.href = `/reflection/${id}`;
+        }
+        
+        // Pass archetypes data from backend
+        const archetypes = {{ archetypes | tojson }};
+    </script>
+</body>
+</html>

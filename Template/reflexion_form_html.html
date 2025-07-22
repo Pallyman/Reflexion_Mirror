@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reflexion Mirror - Symbolic Identity Reflection</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: rgba(255, 255, 255, 0.03);
+            --text-primary: #e0e0e0;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent: #667eea;
+            --accent-secondary: #764ba2;
+            --border: rgba(255, 255, 255, 0.1);
+            --input-bg: rgba(0, 0, 0, 0.3);
+            --gradient-1: rgba(120, 40, 200, 0.1);
+            --gradient-2: rgba(40, 100, 200, 0.1);
+        }
+        
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: rgba(0, 0, 0, 0.03);
+            --text-primary: #1a1a1a;
+            --text-secondary: #4b5563;
+            --text-muted: #9ca3af;
+            --accent: #5b51d8;
+            --accent-secondary: #6d3a9c;
+            --border: rgba(0, 0, 0, 0.1);
+            --input-bg: rgba(255, 255, 255, 0.7);
+            --gradient-1: rgba(120, 40, 200, 0.05);
+            --gradient-2: rgba(40, 100, 200, 0.05);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 20% 50%, var(--gradient-1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, var(--gradient-2) 0%, transparent 50%);
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            border-color: var(--accent);
+        }
+        
+        .theme-toggle svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--text-primary);
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            margin-top: 40px;
+        }
+        
+        h1 {
+            font-family: 'Crimson Text', serif;
+            font-size: 3.5em;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+        
+        .subtitle {
+            font-size: 1.1em;
+            color: var(--text-secondary);
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        
+        .nav-button {
+            padding: 10px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+        
+        .nav-button:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .intro {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: var(--text-primary);
+            font-style: italic;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .form-container {
+            background: var(--bg-secondary);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+        }
+        
+        .form-group {
+            margin-bottom: 35px;
+        }
+        
+        label {
+            display: block;
+            font-size: 1.1em;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            letter-spacing: 0.5px;
+        }
+        
+        .question-mark {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: rgba(102, 126, 234, 0.2);
+            color: var(--accent);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            font-size: 0.8em;
+            margin-left: 8px;
+            cursor: help;
+            transition: all 0.3s ease;
+        }
+        
+        .question-mark:hover {
+            background: rgba(102, 126, 234, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .input-guidance {
+            margin-bottom: 10px;
+            padding: 15px;
+            background: var(--input-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            display: none;
+        }
+        
+        .input-guidance.active {
+            display: block;
+        }
+        
+        .guidance-prompt {
+            font-style: italic;
+            color: var(--accent);
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+        
+        .guidance-examples {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .guidance-examples strong {
+            display: block;
+            margin-top: 8px;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+        
+        .guidance-examples li {
+            margin-left: 20px;
+            margin-bottom: 4px;
+            list-style-type: circle;
+        }
+        
+        textarea, input[type="text"], input[type="email"] {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1em;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+            transition: all 0.3s ease;
+            line-height: 1.6;
+        }
+        
+        textarea {
+            min-height: 120px;
+        }
+        
+        textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--input-bg);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        textarea::placeholder, input[type="text"]::placeholder, input[type="email"]::placeholder {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        
+        .archetype-suggestions {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+        
+        .archetype-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .archetype-card {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            text-align: center;
+        }
+        
+        .archetype-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .archetype-card.selected {
+            border-color: var(--accent);
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .archetype-symbol {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .archetype-name {
+            font-weight: 500;
+            font-size: 0.9em;
+            color: var(--text-primary);
+        }
+        
+        .email-opt {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        
+        .email-opt label {
+            font-size: 0.95em;
+            margin-bottom: 10px;
+        }
+        
+        .submit-button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 40px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+        
+        .submit-button:active {
+            transform: translateY(0);
+        }
+        
+        .phase-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .phase-indicator::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: var(--border);
+            z-index: 0;
+        }
+        
+        .phase {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .phase-dot {
+            width: 30px;
+            height: 30px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .phase.active .phase-dot {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .phase-label {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            .form-container {
+                padding: 30px 20px;
+            }
+            
+            .phase-indicator {
+                margin-bottom: 30px;
+            }
+            
+            .archetype-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <svg viewBox="0 0 24 24" id="theme-icon">
+            <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.591a.75.75 0 101.06 1.06l1.591-1.591zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.591-1.591a.75.75 0 10-1.06 1.06l1.591 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.591a.75.75 0 001.06 1.06l1.591-1.591zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.591-1.591a.75.75 0 00-1.06 1.06l1.591 1.591z"/>
+        </svg>
+    </button>
+
+    <div class="container">
+        <header>
+            <h1>Reflexion Mirror</h1>
+            <p class="subtitle">Collapse → Compression → Convergence</p>
+        </header>
+        
+        <div class="nav-buttons">
+            <a href="/archive" class="nav-button">📚 Archive</a>
+            <a href="/chat" class="nav-button">💬 Chat</a>
+            <a href="#" class="nav-button" onclick="showGuidance(); return false;">❓ Guide</a>
+        </div>
+        
+        <p class="intro">
+            "In the crucible of transformation, we discover who we truly are. 
+            Share your journey from dissolution to emergence."
+        </p>
+        
+        <div class="form-container">
+            <div class="phase-indicator">
+                <div class="phase active">
+                    <div class="phase-dot"></div>
+                    <div class="phase-label">Collapse</div>
+                </div>
+                <div class="phase">
+                    <div class="phase-dot"></div>
+                    <div class="phase-label">Compression</div>
+                </div>
+                <div class="phase">
+                    <div class="phase-dot"></div>
+                    <div class="phase-label">Convergence</div>
+                </div>
+            </div>
+            
+            <form action="/mirror" method="post" id="reflexionForm">
+                <div class="form-group">
+                    <label for="collapse">
+                        What broke you?
+                        <span class="question-mark" onclick="toggleGuidance('collapse')" title="Click for guidance">?</span>
+                    </label>
+                    <div class="input-guidance" id="guidance-collapse"></div>
+                    <textarea 
+                        name="collapse" 
+                        id="collapse" 
+                        placeholder="Describe the moment when everything fell apart..."
+                        required
+                    ></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="build">
+                        What did you build after?
+                        <span class="question-mark" onclick="toggleGuidance('build')" title="Click for guidance">?</span>
+                    </label>
+                    <div class="input-guidance" id="guidance-build"></div>
+                    <textarea 
+                        name="build" 
+                        id="build" 
+                        placeholder="What emerged from the ruins? What did you create or discover?"
+                        required
+                    ></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="now">
+                        Who are you now?
+                        <span class="question-mark" onclick="toggleGuidance('now')" title="Click for guidance">?</span>
+                    </label>
+                    <div class="input-guidance" id="guidance-now"></div>
+                    <textarea 
+                        name="now" 
+                        id="now" 
+                        placeholder="Having walked through fire, who have you become?"
+                        required
+                    ></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="archetype">
+                        Choose your archetype (optional)
+                        <span class="question-mark" title="A symbolic representation of your transformation journey">?</span>
+                    </label>
+                    <input 
+                        type="hidden" 
+                        name="archetype" 
+                        id="archetype"
+                    >
+                    <div class="archetype-grid" id="archetypeGrid">
+                        <!-- Archetypes will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="email-opt">
+                    <label for="email">
+                        📧 Email me my reflection (optional)
+                    </label>
+                    <input 
+                        type="email" 
+                        name="email" 
+                        id="email" 
+                        placeholder="your@email.com"
+                    >
+                </div>
+                
+                <button type="submit" class="submit-button">Generate Reflection</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Theme management
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+        
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('theme-icon');
+            if (theme === 'light') {
+                icon.innerHTML = '<path d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/>';
+            } else {
+                icon.innerHTML = '<path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.591a.75.75 0 101.06 1.06l1.591-1.591zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.591-1.591a.75.75 0 10-1.06 1.06l1.591 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.591a.75.75 0 001.06 1.06l1.591-1.591zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.591-1.591a.75.75 0 00-1.06 1.06l1.591 1.591z"/>';
+            }
+        }
+        
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+        
+        // Load archetypes
+        const archetypes = {{ archetypes | tojson }};
+        const archetypeGrid = document.getElementById('archetypeGrid');
+        
+        Object.entries(archetypes).forEach(([key, data]) => {
+            const card = document.createElement('div');
+            card.className = 'archetype-card';
+            card.onclick = () => selectArchetype(key);
+            card.innerHTML = `
+                <div class="archetype-symbol">${data.symbol}</div>
+                <div class="archetype-name">${key.charAt(0).toUpperCase() + key.slice(1)}</div>
+            `;
+            archetypeGrid.appendChild(card);
+        });
+        
+        function selectArchetype(archetype) {
+            document.getElementById('archetype').value = archetype;
+            
+            // Update visual selection
+            document.querySelectorAll('.archetype-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.archetype-card').classList.add('selected');
+        }
+        
+        // Field guidance
+        const fieldGuidance = {{ field_guidance | tojson }};
+        
+        function toggleGuidance(field) {
+            const guidanceDiv = document.getElementById(`guidance-${field}`);
+            const guidance = fieldGuidance[field];
+            
+            if (!guidance) return;
+            
+            if (guidanceDiv.classList.contains('active')) {
+                guidanceDiv.classList.remove('active');
+            } else {
+                // Generate random prompt and examples
+                const randomPrompt = guidance.prompts[Math.floor(Math.random() * guidance.prompts.length)];
+                const examplesList = guidance.examples.map(ex => `<li>${ex}</li>`).join('');
+                
+                guidanceDiv.innerHTML = `
+                    <div class="guidance-prompt">${randomPrompt}</div>
+                    <div class="guidance-examples">
+                        <strong>Examples:</strong>
+                        <ul>${examplesList}</ul>
+                    </div>
+                `;
+                guidanceDiv.classList.add('active');
+            }
+        }
+        
+        function showGuidance() {
+            // Show all guidance
+            ['collapse', 'build', 'now'].forEach(field => {
+                const guidanceDiv = document.getElementById(`guidance-${field}`);
+                if (!guidanceDiv.classList.contains('active')) {
+                    toggleGuidance(field);
+                }
+            });
+        }
+        
+        // Update phase indicator based on form progress
+        const form = document.getElementById('reflexionForm');
+        const inputs = form.querySelectorAll('textarea');
+        const phases = document.querySelectorAll('.phase');
+        
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', () => {
+                if (input.value.trim()) {
+                    if (index < phases.length) {
+                        phases[index].classList.add('active');
+                    }
+                } else {
+                    if (index < phases.length) {
+                        phases[index].classList.remove('active');
+                    }
+                }
+            });
+        });
+        
+        // Always keep first phase active
+        phases[0].classList.add('active');
+    </script>
+</body>
+</html>
