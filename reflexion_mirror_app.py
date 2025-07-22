@@ -294,7 +294,9 @@ def get_user_reflections(user_id):
 
 @app.route('/')
 def index():
-    return render_template('form.html', 
+    # Use the updated template filename as provided by the user.  The original
+    # template was `form.html`; we now reference `reflexion_form_html.html`.
+    return render_template('reflexion_form_html.html',
                          archetypes=ARCHETYPES,
                          field_guidance=FIELD_GUIDANCE)
 
@@ -390,7 +392,7 @@ def mirror():
         except Exception as e:
             print(f"Email error: {e}")
     
-    return render_template('mirror.html', 
+    return render_template('reflexion_mirror_html.html',
                          reflection=narrative,
                          reflection_id=reflection_id,
                          collapse=collapse,
@@ -407,7 +409,7 @@ def archive():
     """Display user's reflection archive"""
     user_id = get_user_id()
     reflections = get_user_reflections(user_id)
-    return render_template('archive.html', reflections=reflections, archetypes=ARCHETYPES)
+    return render_template('reflexion_archive_html.html', reflections=reflections, archetypes=ARCHETYPES)
 
 @app.route('/explore')
 def explore():
@@ -433,7 +435,7 @@ def explore():
         })
     
     conn.close()
-    return render_template('explore.html', reflections=public_reflections, archetypes=ARCHETYPES)
+    return render_template('reflexion_explore_html.html', reflections=public_reflections, archetypes=ARCHETYPES)
 
 @app.route('/reflection/<reflection_id>')
 def view_reflection(reflection_id):
@@ -455,7 +457,7 @@ def view_reflection(reflection_id):
             'narrative': row[6],
             'created_at': row[7]
         }
-        return render_template('public_reflection.html', 
+        return render_template('public_reflection.html',
                              reflection=reflection,
                              archetype_data=ARCHETYPES.get(row[5], None))
     
@@ -552,7 +554,7 @@ ID: {reflection_id}
 @app.route('/chat')
 def chat():
     """Claude-powered chat interface"""
-    return render_template('chat.html')
+    return render_template('reflexion_chat_html.html')
 
 @app.route('/api/chat', methods=['POST'])
 def api_chat():
@@ -641,71 +643,6 @@ def get_essential_nature(now_text):
             return pattern
     return 'irreducible essence'
 
-# -----------------------------------------------------------------------------
-# Narrative Generation
-#
-# This helper constructs a multi‑section narrative from the user's collapse,
-# build and now phases, integrating the selected archetype.  It replaces the
-# unreachable inline code that was previously left inside the
-# get_reflexion_dna route.
-
-def generate_narrative(collapse: str, build: str, now: str, archetype: str) -> str:
-    """Enhanced narrative generation with archetype integration.
-
-    Args:
-        collapse: The text describing what fell apart for the user.
-        build: The text describing how the user began to rebuild.
-        now: The text describing the user's current, transformed state.
-        archetype: The archetype chosen by the user (may be empty).
-
-    Returns:
-        A formatted string representing the complete narrative.
-    """
-    sections: list[str] = []
-    # Opening
-    sections.append("═══ REFLEXION ═══\n")
-    # Add archetype header if selected
-    if archetype and archetype in ARCHETYPES:
-        arch_data = ARCHETYPES[archetype]
-        sections.append(f"{arch_data['symbol']} The {archetype.title()}'s Journey {arch_data['symbol']}\n")
-    # Collapse phase
-    sections.append("【 COLLAPSE 】")
-    sections.append("In the depths of dissolution, you faced the void:")
-    sections.append(f"» {collapse}")
-    sections.append("This was your katabasis—the necessary descent.")
-    sections.append("")
-    # Compression phase
-    sections.append("【 COMPRESSION 】")
-    sections.append("From the fragments, you forged something new:")
-    sections.append(f"» {build}")
-    sections.append("In the crucible of transformation, you discovered resilience.")
-    sections.append("")
-    # Convergence phase
-    sections.append("【 CONVERGENCE 】")
-    sections.append("Now, you stand transformed:")
-    sections.append(f"» {now}")
-    sections.append("You have become the author of your own mythology.")
-    sections.append("")
-    # Enhanced archetype integration
-    sections.append("【 ARCHETYPE 】")
-    if archetype and archetype in ARCHETYPES:
-        arch_data = ARCHETYPES[archetype]
-        sections.append(f"You embody the {archetype.title()}: {arch_data['description']}")
-        sections.append(f"\n「 {arch_data['quote']} 」")
-    elif archetype:
-        sections.append(f"You walk the path of the {archetype.title()}")
-    else:
-        sections.append("Your archetype is still crystallizing in the cosmic forge")
-    sections.append("")
-    # Synthesis
-    sections.append("【 SYNTHESIS 】")
-    sections.append("Your journey maps the eternal pattern:")
-    sections.append("Dissolution → Crystallization → Emergence")
-    sections.append("What was broken has become the foundation.")
-    sections.append("What was lost has become the compass.")
-    sections.append("What remains is irreducibly you.")
-    return "\n".join(sections)
-
 @app.route('/collapse-archive')
 def collapse_archive():
     """View the collapse archive dashboard"""
@@ -743,7 +680,7 @@ def collapse_archive():
             total_words = sum(entry.get('metadata', {}).get('word_count', {}).get(field, 0) for entry in entries)
             stats['avg_word_counts'][field] = round(total_words / len(entries), 1)
     
-    return render_template('collapse_dashboard.html', entries=entries, stats=stats)
+    return render_template('collapse_dashboard_html.html', entries=entries, stats=stats)
 
 @app.route('/api/collapse-archive/<entry_id>')
 def get_collapse_entry(entry_id):
@@ -874,7 +811,7 @@ def admin_dashboard():
     
     conn.close()
     
-    return render_template('admin_dashboard.html', stats=stats, archetypes=ARCHETYPES)
+    return render_template('admin_dashboard_html.html', stats=stats, archetypes=ARCHETYPES)
 
 @app.route('/api/admin/export-all')
 @require_admin
@@ -949,6 +886,59 @@ def get_reflexion_dna(reflection_id):
         return jsonify(dna)
     
     return jsonify({'error': 'Reflection not found'}), 404
+    """Enhanced narrative generation with archetype integration"""
+    sections = []
+    
+    # Opening
+    sections.append("═══ REFLEXION ═══\n")
+    
+    # Add archetype header if selected
+    if archetype and archetype in ARCHETYPES:
+        arch_data = ARCHETYPES[archetype]
+        sections.append(f"{arch_data['symbol']} The {archetype.title()}'s Journey {arch_data['symbol']}\n")
+    
+    # Collapse phase
+    sections.append("【 COLLAPSE 】")
+    sections.append(f"In the depths of dissolution, you faced the void:")
+    sections.append(f"» {collapse}")
+    sections.append(f"This was your katabasis—the necessary descent.")
+    sections.append("")
+    
+    # Compression phase
+    sections.append("【 COMPRESSION 】")
+    sections.append(f"From the fragments, you forged something new:")
+    sections.append(f"» {build}")
+    sections.append(f"In the crucible of transformation, you discovered resilience.")
+    sections.append("")
+    
+    # Convergence phase
+    sections.append("【 CONVERGENCE 】")
+    sections.append(f"Now, you stand transformed:")
+    sections.append(f"» {now}")
+    sections.append(f"You have become the author of your own mythology.")
+    sections.append("")
+    
+    # Enhanced archetype integration
+    sections.append("【 ARCHETYPE 】")
+    if archetype and archetype in ARCHETYPES:
+        arch_data = ARCHETYPES[archetype]
+        sections.append(f"You embody the {archetype.title()}: {arch_data['description']}")
+        sections.append(f"\n「 {arch_data['quote']} 」")
+    elif archetype:
+        sections.append(f"You walk the path of the {archetype.title()}")
+    else:
+        sections.append("Your archetype is still crystallizing in the cosmic forge")
+    sections.append("")
+    
+    # Synthesis
+    sections.append("【 SYNTHESIS 】")
+    sections.append("Your journey maps the eternal pattern:")
+    sections.append("Dissolution → Crystallization → Emergence")
+    sections.append("What was broken has become the foundation.")
+    sections.append("What was lost has become the compass.")
+    sections.append("What remains is irreducibly you.")
+    
+    return "\n".join(sections)
 
 def send_reflection_email(email, narrative, reflection_id):
     """Send reflection via email"""
